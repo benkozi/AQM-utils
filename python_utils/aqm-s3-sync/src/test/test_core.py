@@ -40,7 +40,7 @@ class TestS3SyncRunner:
             "--include",
             "GEFS_Aerosol/20230601/00/gfs.t00z.atmf000.nemsio",
             "--include",
-            "RAVE_fire/rave-20230601.tar",
+            "RAVE_fire/20230601/*.nc",
             "--include",
             "RESTART/*20230531*",
             "--include",
@@ -52,11 +52,17 @@ class TestS3SyncRunner:
             "--include",
             "GEFS_Aerosol/20230602/00/gfs.t00z.atmf000.nemsio",
             "--include",
-            "RAVE_fire/rave-20230602.tar",
+            "RAVE_fire/20230602/*.nc",
             "s3://noaa-ufs-srw-pds/UFS-AQM",
             str(dst_dir),
         )
-        assert actual == expected
+        try:
+            assert actual == expected
+        except AssertionError:
+            print(f"{actual=}")
+            diff = set(actual).symmetric_difference(set(expected))
+            print(f"{diff=}")
+            raise
 
 
 class TestUseCase:
