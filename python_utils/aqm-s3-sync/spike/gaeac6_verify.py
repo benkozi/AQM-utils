@@ -9,7 +9,7 @@ def test_gaeac6() -> None:
         first_cycle_date=first_cycle_date,
         last_cycle_date=last_cycle_date,
         dst_dir=dst_dir,
-        dry_run=True,
+        dry_run=False,
     )
     runner = S3SyncRunner(ctx)
     runner.run()
