@@ -6,4 +6,4 @@ test_path=/gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/AQM-utils/python_ut
 
 export PYTHONPATH=${root}/src:${PYTHONPATH}
 
-${conda_bin} run -n benkozi-work --no-capture-output pytest -s -p no:loggin ${test_path}
+${conda_bin} run -n benkozi-work --no-capture-output pytest -s -p no:logging ${test_path}
