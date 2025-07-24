@@ -145,7 +145,7 @@ class S3SyncRunner:
                 f"GFS_SFC_DATA/gfs.{curr_cycle_date_str}/12/atmos/gfs.sfcanl.nc",
                 f"GFS_SFC_DATA/gfs.{curr_cycle_date_str}/12/atmos/gfs.t12z.sfcf{self._ctx.fcst_hr:03}.nc",
                 f"GEFS_Aerosol/{curr_cycle_date_str}/00/gfs.t00z.atmf{self._ctx.fcst_hr:03}.nemsio",
-                f"RAVE_fire/rave-{curr_cycle_date_str}.tar",
+                f"RAVE_fire/{curr_cycle_date_str}/*.nc",
             ]
             if ctr == 0:
                 LOGGER("adding restart file download")
