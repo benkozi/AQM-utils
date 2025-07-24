@@ -1,0 +1,10 @@
+name: aqm-s3-sync
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - typer
+  - pydantic
+  - pytest
+  - pytest-mock
+  - awscli
