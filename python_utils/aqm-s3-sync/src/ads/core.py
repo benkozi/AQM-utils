@@ -143,7 +143,7 @@ class S3SyncRunner:
             include_templates = [
                 f"FV3GFS/gfs.{curr_cycle_date_str}/12/atmos/gfs.t{self._ctx.first_cycle_date.hour:02}z.atmf{self._ctx.fcst_hr:03}.nc",
                 f"GFS_SFC_DATA/gfs.{curr_cycle_date_str}/12/atmos/gfs.sfcanl.nc",
-                f"GFS_SFC_DATA/gfs.{curr_cycle_date_str}/12/atmos/gfs.t12z.sfcf{self._ctx.fcst_hr:03}.nc",
+                f"GFS_SFC_DATA/gfs.{curr_cycle_date_str}/12/atmos/gfs.t12z.sfcf*.nc",
                 f"GEFS_Aerosol/{curr_cycle_date_str}/00/gfs.t00z.atmf{self._ctx.fcst_hr:03}.nemsio",
                 f"RAVE_fire/{curr_cycle_date_str}/*.nc",
             ]
