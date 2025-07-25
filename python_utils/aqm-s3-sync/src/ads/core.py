@@ -143,13 +143,19 @@ class S3SyncRunner:
             include_templates = [
                 # tdk: can limit based on logs - which hours needed?
                 # f"FV3GFS/gfs.{curr_cycle_date_str}/12/atmos/gfs.t{self._ctx.first_cycle_date.hour:02}z.atmf{self._ctx.fcst_hr:03}.nc",
-                f"FV3GFS/gfs.{curr_cycle_date_str}/12/atmos/gfs.t{self._ctx.first_cycle_date.hour:02}z.atmf*.nc",
-                f"FV3GFS/gfs.{curr_cycle_date_str}/12/atmos/gfs.t{self._ctx.first_cycle_date.hour:02}z.sfcf*.nc",
                 f"GFS_SFC_DATA/gfs.{curr_cycle_date_str}/12/atmos/gfs.sfcanl.nc",
-                f"GFS_SFC_DATA/gfs.{curr_cycle_date_str}/12/atmos/gfs.t12z.sfcf*.nc",
-                f"GEFS_Aerosol/{curr_cycle_date_str}/00/gfs.t00z.atmf*.nemsio",
                 f"RAVE_fire/{curr_cycle_date_str}/*.nc",
             ]
+            for fhr in range(self._ctx.fcst_hr, self._ctx.fcst_hr + 30, 6):
+                include_templates += [
+                    f"FV3GFS/gfs.{curr_cycle_date_str}/12/atmos/gfs.t{self._ctx.first_cycle_date.hour:02}z.atmf{fhr:03}.nc",
+                    f"FV3GFS/gfs.{curr_cycle_date_str}/12/atmos/gfs.t{self._ctx.first_cycle_date.hour:02}z.sfcf{fhr:03}.nc",
+                    f"GFS_SFC_DATA/gfs.{curr_cycle_date_str}/12/atmos/gfs.t12z.sfcf{fhr:03}.nc",
+                ]
+            for fhr in range(self._ctx.fcst_hr, self._ctx.fcst_hr + 30, 3):
+                include_templates += [
+                    f"GEFS_Aerosol/{curr_cycle_date_str}/00/gfs.t00z.atmf{fhr:03}.nemsio"
+                ]
             if ctr == 0:
                 LOGGER("adding restart file download")
                 include_templates.append(f"RESTART/*{restart_cycle_date.strftime('%Y%m%d')}*")
