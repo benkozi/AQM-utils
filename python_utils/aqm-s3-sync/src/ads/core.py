@@ -141,10 +141,13 @@ class S3SyncRunner:
                 LOGGER("", exc_info=ValueError(f"{ctr=} - don't be ridiculous"))
             curr_cycle_date_str = curr_cycle_date.strftime("%Y%m%d")
             include_templates = [
-                f"FV3GFS/gfs.{curr_cycle_date_str}/12/atmos/gfs.t{self._ctx.first_cycle_date.hour:02}z.atmf{self._ctx.fcst_hr:03}.nc",
+                # tdk: can limit based on logs - which hours needed?
+                # f"FV3GFS/gfs.{curr_cycle_date_str}/12/atmos/gfs.t{self._ctx.first_cycle_date.hour:02}z.atmf{self._ctx.fcst_hr:03}.nc",
+                f"FV3GFS/gfs.{curr_cycle_date_str}/12/atmos/gfs.t{self._ctx.first_cycle_date.hour:02}z.atmf*.nc",
+                f"FV3GFS/gfs.{curr_cycle_date_str}/12/atmos/gfs.t{self._ctx.first_cycle_date.hour:02}z.sfcf*.nc",
                 f"GFS_SFC_DATA/gfs.{curr_cycle_date_str}/12/atmos/gfs.sfcanl.nc",
                 f"GFS_SFC_DATA/gfs.{curr_cycle_date_str}/12/atmos/gfs.t12z.sfcf*.nc",
-                f"GEFS_Aerosol/{curr_cycle_date_str}/00/gfs.t00z.atmf{self._ctx.fcst_hr:03}.nemsio",
+                f"GEFS_Aerosol/{curr_cycle_date_str}/00/gfs.t00z.atmf*.nemsio",
                 f"RAVE_fire/{curr_cycle_date_str}/*.nc",
             ]
             if ctr == 0:
