@@ -1,4 +1,4 @@
-name: aqm-data-s3-sync
+name: aqm-data-sync
 channels:
   - conda-forge
   - nodefaults
