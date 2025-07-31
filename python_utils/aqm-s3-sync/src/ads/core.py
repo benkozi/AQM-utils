@@ -143,7 +143,8 @@ class S3SyncRunner:
             include_templates = [
                 # tdk: can limit based on logs - which hours needed?
                 # f"FV3GFS/gfs.{curr_cycle_date_str}/12/atmos/gfs.t{self._ctx.first_cycle_date.hour:02}z.atmf{self._ctx.fcst_hr:03}.nc",
-                f"GFS_SFC_DATA/gfs.{curr_cycle_date_str}/12/atmos/gfs.sfcanl.nc",
+                f"GFS_SFC_DATA/gfs.{curr_cycle_date_str}/12/atmos/gfs.t12z.sfcanl.nc",
+                f"FV3GFS/gfs.{curr_cycle_date_str}/12/atmos/gfs.t12z.atmanl.nc",
                 f"RAVE_fire/{curr_cycle_date_str}/*.nc",
             ]
             for fhr in range(self._ctx.fcst_hr, self._ctx.fcst_hr + 30, 6):
