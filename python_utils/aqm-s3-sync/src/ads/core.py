@@ -153,6 +153,10 @@ class S3SyncRunner:
                     f"FV3GFS/gfs.{curr_cycle_date_str}/12/atmos/gfs.t{self._ctx.first_cycle_date.hour:02}z.sfcf{fhr:03}.nc",
                     f"GFS_SFC_DATA/gfs.{curr_cycle_date_str}/12/atmos/gfs.t12z.sfcf{fhr:03}.nc",
                 ]
+            for fhr in [3]:  # tdk: make relative to forecast hour
+                include_templates += [
+                    f"GFS_SFC_DATA/gfs.{curr_cycle_date_str}/12/atmos/gfs.t12z.sfcf{fhr:03}.nc",
+                ]
             for fhr in range(self._ctx.fcst_hr, self._ctx.fcst_hr + 42, 6):
                 include_templates += [
                     f"GEFS_Aerosol/{curr_cycle_date_str}/00/gfs.t00z.atmf{fhr:03}.nemsio"

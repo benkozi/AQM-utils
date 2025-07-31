@@ -1,0 +1,12 @@
+[project]
+name = "aqm-data-s3-sync"
+version = "0.1.0"
+description = "Synchronize AQM datasets with S3 targets"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+  { name = "Ben Koziol", email = "benjamin.koziol@noaa.gov" }
+]
+
+[project.scripts]
+ufs-conda = "ads.ads_cli:app"
