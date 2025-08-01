@@ -3,13 +3,13 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from ads.ads_cli import app
-from ads.core import UseCaseKey
+from aqm_data_sync.aqm_data_sync_cli import app
+from aqm_data_sync.core import UseCaseKey
 
 
 def test_help() -> None:
     """Test that the help message can be displayed."""
-    cli_path = Path(__file__).parent.parent / "ads" / "ads_cli.py"
+    cli_path = Path(__file__).parent.parent / "aqm_data_sync" / "aqm_data_sync_cli.py"
     subprocess.check_call(["python", str(cli_path), "--help"])
 
 
@@ -22,6 +22,8 @@ def test_use_case(tmp_path: Path) -> None:
         "--dst-dir",
         str(tmp_path),
         "--dry-run",
+        "--snippet",
     ]
     result = runner.invoke(app, args, catch_exceptions=False)
     print(result.output)
+    assert result.exit_code == 0

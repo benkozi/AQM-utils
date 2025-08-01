@@ -2,13 +2,12 @@ import datetime
 import logging
 import subprocess
 from enum import unique, StrEnum
-from functools import cached_property
 from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, computed_field, model_validator
 
-from ads.logging_ads import LOGGER
+from aqm_data_sync.logging_aqm_data_sync import LOGGER
 
 
 @unique
@@ -26,9 +25,9 @@ class Context(BaseModel):
     s3_root: str = "s3://noaa-ufs-srw-pds/UFS-AQM"
     max_concurrent_requests: int | None = 3
     dry_run: bool = False
+    snippet: bool = False
 
     @computed_field
-    @cached_property
     def system_max_concurrent_requests(self) -> int | None:
         try:
             raw_output = subprocess.check_output(
@@ -60,13 +59,12 @@ class Context(BaseModel):
 class UseCase(Context):
     key: UseCaseKey
 
-    @model_validator(mode="before")
     @classmethod
-    def _initialize_model_(cls, values: dict) -> dict:
-        return values
-
-    @classmethod
-    def from_key(cls, key: UseCaseKey = UseCaseKey.UNDEFINED, **kwargs: Any) -> "UseCase":
+    def from_key(
+        cls,
+        key: UseCaseKey = UseCaseKey.UNDEFINED,
+        **kwargs: Any,
+    ) -> "UseCase":
         match key:
             case UseCaseKey.UNDEFINED:
                 instance = cls(key=key, **kwargs)
@@ -166,7 +164,7 @@ class S3SyncRunner:
                 include_templates.append(f"RESTART/*{restart_cycle_date.strftime('%Y%m%d')}*")
             for it in include_templates:
                 cmd += ["--include", it]
-            if curr_cycle_date == self._ctx.last_cycle_date:
+            if curr_cycle_date == self._ctx.last_cycle_date or self._ctx.snippet is True:
                 LOGGER("finished adding include filters")
                 break
             curr_cycle_date += datetime.timedelta(days=1)

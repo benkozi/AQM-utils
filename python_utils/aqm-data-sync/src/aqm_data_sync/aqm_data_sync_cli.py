@@ -3,12 +3,8 @@ from pathlib import Path
 
 import typer
 
-from ads.core import UseCaseKey, Context, UseCase, S3SyncRunner
+from aqm_data_sync.core import UseCaseKey, Context, UseCase, S3SyncRunner
 
-# tdk: add fix_emis download
-# tdk: add fix_aqm download
-# tdk: add aspects for use cases
-# tdk: validate all data is downloaded
 
 os.environ["NO_COLOR"] = "1"
 app = typer.Typer(pretty_exceptions_enable=False)
@@ -34,6 +30,11 @@ def main(
     ),
     dry_run: bool = typer.Option(False, "--dry-run", help="Dry run."),
     use_case: UseCaseKey = typer.Option(UseCaseKey.UNDEFINED, "--use-case", help="Use case."),
+    snippet: bool = typer.Option(
+        False,
+        "--snippet",
+        help="If provided, download data for a single forecast cycle loop (e.g. one day).",
+    ),
 ) -> None:
     kwds = dict(
         first_cycle_date=first_cycle_date,
@@ -43,6 +44,7 @@ def main(
         s3_root=s3_root,
         max_concurrent_requests=max_concurrent_requests,
         dry_run=dry_run,
+        snippet=snippet,
     )
     if use_case == UseCaseKey.UNDEFINED:
         ctx = Context(**kwds)
