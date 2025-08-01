@@ -1,3 +1,4 @@
+import os
 import subprocess
 from pathlib import Path
 
@@ -9,6 +10,7 @@ from aqm_data_sync.core import UseCaseKey
 
 def test_help() -> None:
     """Test that the help message can be displayed."""
+    os.environ["TERMINAL_WIDTH"] = "100"
     cli_path = Path(__file__).parent.parent / "aqm_data_sync" / "aqm_data_sync_cli.py"
     subprocess.check_call(["python", str(cli_path), "--help"])
 

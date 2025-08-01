@@ -12,12 +12,14 @@ from aqm_data_sync.core import (
 class TestS3SyncRunner:
 
     def test_happy_path(self, tmp_path: Path) -> None:
+        """Test a dry run with a single forecast date."""
         first_cycle_date = "2023060112"
         ctx = Context(first_cycle_date=first_cycle_date, dst_dir=tmp_path, dry_run=True)
         runner = S3SyncRunner(ctx)
         runner.run()
 
     def test_create_sync_command(self, tmp_path: Path) -> None:
+        """Test an exact match for the AWS S3 sync command."""
         first_cycle_date = "2023060112"
         last_cycle_date = "2023060212"
         dst_dir = tmp_path / "output-for-this-test"
@@ -169,7 +171,8 @@ class TestS3SyncRunner:
 
 class TestUseCase:
 
-    def test_use_case(self, tmp_path: Path) -> None:
+    def test_from_key(self, tmp_path: Path) -> None:
+        """Test creating a use case context object."""
         use_case = UseCase.from_key(UseCaseKey.AEROMMA, dst_dir=tmp_path)
         print(use_case)
         assert isinstance(use_case, UseCaseAeromma)

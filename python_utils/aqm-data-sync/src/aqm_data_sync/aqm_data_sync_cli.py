@@ -5,7 +5,6 @@ import typer
 
 from aqm_data_sync.core import UseCaseKey, Context, UseCase, S3SyncRunner
 
-
 os.environ["NO_COLOR"] = "1"
 app = typer.Typer(pretty_exceptions_enable=False)
 
