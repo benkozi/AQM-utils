@@ -14,6 +14,7 @@ def test_help() -> None:
 
 
 def test_use_case(tmp_path: Path) -> None:
+    """Test the use case pathway for a snippet."""
     runner = CliRunner()
 
     args = [

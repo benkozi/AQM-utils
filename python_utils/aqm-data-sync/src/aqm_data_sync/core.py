@@ -130,6 +130,12 @@ class S3SyncRunner:
             LOGGER("this is a DRY RUN")
             cmd.append("--dryrun")
         cmd += ["--exclude", "*"]
+        self._update_include_templates_(cmd)
+        cmd.append(self._ctx.s3_root)
+        cmd.append(str(self._ctx.dst_dir))
+        return tuple(cmd)
+
+    def _update_include_templates_(self, cmd: list[str]) -> None:
         restart_cycle_date = self._ctx.first_cycle_date - datetime.timedelta(days=1)
         curr_cycle_date = self._ctx.first_cycle_date
         ctr = 0
@@ -137,28 +143,7 @@ class S3SyncRunner:
             LOGGER(f"{ctr=}, {curr_cycle_date=}")
             if ctr > 1000:
                 LOGGER("", exc_info=ValueError(f"{ctr=} - don't be ridiculous"))
-            curr_cycle_date_str = curr_cycle_date.strftime("%Y%m%d")
-            include_templates = [
-                # tdk: can limit based on logs - which hours needed?
-                # f"FV3GFS/gfs.{curr_cycle_date_str}/12/atmos/gfs.t{self._ctx.first_cycle_date.hour:02}z.atmf{self._ctx.fcst_hr:03}.nc",
-                f"GFS_SFC_DATA/gfs.{curr_cycle_date_str}/12/atmos/gfs.t12z.sfcanl.nc",
-                f"FV3GFS/gfs.{curr_cycle_date_str}/12/atmos/gfs.t12z.atmanl.nc",
-                f"RAVE_fire/{curr_cycle_date_str}/*.nc",
-            ]
-            for fhr in range(self._ctx.fcst_hr, self._ctx.fcst_hr + 30, 6):
-                include_templates += [
-                    f"FV3GFS/gfs.{curr_cycle_date_str}/12/atmos/gfs.t{self._ctx.first_cycle_date.hour:02}z.atmf{fhr:03}.nc",
-                    f"FV3GFS/gfs.{curr_cycle_date_str}/12/atmos/gfs.t{self._ctx.first_cycle_date.hour:02}z.sfcf{fhr:03}.nc",
-                    f"GFS_SFC_DATA/gfs.{curr_cycle_date_str}/12/atmos/gfs.t12z.sfcf{fhr:03}.nc",
-                ]
-            for fhr in [3, 9, 15, 21]:
-                include_templates += [
-                    f"GFS_SFC_DATA/gfs.{curr_cycle_date_str}/12/atmos/gfs.t12z.sfcf{fhr:03}.nc",
-                ]
-            for fhr in range(self._ctx.fcst_hr, self._ctx.fcst_hr + 42, 6):
-                include_templates += [
-                    f"GEFS_Aerosol/{curr_cycle_date_str}/00/gfs.t00z.atmf{fhr:03}.nemsio"
-                ]
+            include_templates = self._create_include_templates_for_cycle_date_(curr_cycle_date)
             if ctr == 0:
                 LOGGER("adding restart file download")
                 include_templates.append(f"RESTART/*{restart_cycle_date.strftime('%Y%m%d')}*")
@@ -169,9 +154,32 @@ class S3SyncRunner:
                 break
             curr_cycle_date += datetime.timedelta(days=1)
             ctr += 1
-        cmd.append(self._ctx.s3_root)
-        cmd.append(str(self._ctx.dst_dir))
-        return tuple(cmd)
+        return cmd
+
+    def _create_include_templates_for_cycle_date_(
+        self, curr_cycle_date: datetime.datetime
+    ) -> list[str]:
+        curr_cycle_date_str = curr_cycle_date.strftime("%Y%m%d")
+        include_templates = [
+            f"GFS_SFC_DATA/gfs.{curr_cycle_date_str}/12/atmos/gfs.t12z.sfcanl.nc",
+            f"FV3GFS/gfs.{curr_cycle_date_str}/12/atmos/gfs.t12z.atmanl.nc",
+            f"RAVE_fire/{curr_cycle_date_str}/*.nc",
+        ]
+        for fhr in range(self._ctx.fcst_hr, self._ctx.fcst_hr + 30, 6):
+            include_templates += [
+                f"FV3GFS/gfs.{curr_cycle_date_str}/12/atmos/gfs.t{self._ctx.first_cycle_date.hour:02}z.atmf{fhr:03}.nc",
+                f"FV3GFS/gfs.{curr_cycle_date_str}/12/atmos/gfs.t{self._ctx.first_cycle_date.hour:02}z.sfcf{fhr:03}.nc",
+                f"GFS_SFC_DATA/gfs.{curr_cycle_date_str}/12/atmos/gfs.t12z.sfcf{fhr:03}.nc",
+            ]
+        for fhr in [3, 9, 15, 21]:
+            include_templates += [
+                f"GFS_SFC_DATA/gfs.{curr_cycle_date_str}/12/atmos/gfs.t12z.sfcf{fhr:03}.nc",
+            ]
+        for fhr in range(self._ctx.fcst_hr, self._ctx.fcst_hr + 42, 6):
+            include_templates += [
+                f"GEFS_Aerosol/{curr_cycle_date_str}/00/gfs.t00z.atmf{fhr:03}.nemsio"
+            ]
+        return include_templates
 
     def _handle_max_concurrent_request_reset_(self):
         if self._ctx.system_max_concurrent_requests is not None:
