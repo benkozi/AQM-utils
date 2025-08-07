@@ -37,6 +37,10 @@ class AbstractContext(ABC, BaseModel):
             return int(raw_output)
 
 
+class SRWFixedContext(AbstractContext):
+    s3_root: str = "s3://noaa-ufs-srw-pds/develop-20250702/fix"
+
+
 class TimeVaryingContext(AbstractContext):
     first_cycle_date: datetime.datetime
     fcst_hr: int = 0
@@ -97,7 +101,7 @@ class UseCaseAeromma(UseCase):
 
 class AbstractS3SyncRunner(ABC):
 
-    def __init__(self, context: TimeVaryingContext) -> None:
+    def __init__(self, context: AbstractContext) -> None:
         self._ctx = context
 
     def run(self) -> None:
@@ -159,7 +163,19 @@ class AbstractS3SyncRunner(ABC):
             )
 
 
+class SRWFixedSyncRunner(AbstractS3SyncRunner):
+
+    def __init__(self, context: SRWFixedContext) -> None:
+        super().__init__(context)
+
+    def _update_include_templates_(self, cmd: list[str]) -> None:
+        cmd += ["--include", "*"]
+
+
 class TimeVaryingSyncRunner(AbstractS3SyncRunner):
+
+    def __init__(self, context: TimeVaryingContext) -> None:
+        super().__init__(context)
 
     def _update_include_templates_(self, cmd: list[str]) -> None:
         restart_cycle_date = self._ctx.first_cycle_date - datetime.timedelta(days=1)
@@ -169,13 +185,20 @@ class TimeVaryingSyncRunner(AbstractS3SyncRunner):
             LOGGER(f"{ctr=}, {curr_cycle_date=}")
             if ctr > 1000:
                 LOGGER("", exc_info=ValueError(f"{ctr=} - Exceeded max iterations"))
-            include_templates = self._create_include_templates_for_cycle_date_(curr_cycle_date)
+            include_templates = self._create_include_templates_for_cycle_date_(
+                curr_cycle_date
+            )
             if ctr == 0:
                 LOGGER("adding restart file download")
-                include_templates.append(f"RESTART/*{restart_cycle_date.strftime('%Y%m%d')}*")
+                include_templates.append(
+                    f"RESTART/*{restart_cycle_date.strftime('%Y%m%d')}*"
+                )
             for it in include_templates:
                 cmd += ["--include", it]
-            if curr_cycle_date == self._ctx.last_cycle_date or self._ctx.snippet is True:
+            if (
+                curr_cycle_date == self._ctx.last_cycle_date
+                or self._ctx.snippet is True
+            ):
                 LOGGER("finished adding include filters")
                 break
             curr_cycle_date += datetime.timedelta(days=1)

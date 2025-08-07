@@ -6,15 +6,19 @@ from aqm_data_sync.core import (
     UseCase,
     UseCaseKey,
     UseCaseAeromma,
+    SRWFixedContext,
+    SRWFixedSyncRunner,
 )
 
 
-class TestS3SyncRunner:
+class TestTimeVaryingSyncRunner:
 
     def test_happy_path(self, tmp_path: Path) -> None:
         """Test a dry run with a single forecast date."""
         first_cycle_date = "2023060112"
-        ctx = TimeVaryingContext(first_cycle_date=first_cycle_date, dst_dir=tmp_path, dry_run=True)
+        ctx = TimeVaryingContext(
+            first_cycle_date=first_cycle_date, dst_dir=tmp_path, dry_run=True
+        )
         runner = TimeVaryingSyncRunner(ctx)
         runner.run()
 
@@ -176,3 +180,36 @@ class TestUseCase:
         use_case = UseCase.from_key(UseCaseKey.AEROMMA, dst_dir=tmp_path)
         print(use_case)
         assert isinstance(use_case, UseCaseAeromma)
+
+
+class TestSRWFixedSyncRunner:
+
+    def test_create_sync_command(self, tmp_path: Path) -> None:
+        """Test an exact match for the AWS S3 sync command."""
+        dst_dir = tmp_path / "output-for-this-test"
+        ctx = SRWFixedContext(
+            dst_dir=dst_dir,
+            dry_run=True,
+        )
+        runner = SRWFixedSyncRunner(ctx)
+        actual = runner._create_sync_cmd_()
+        expected = (
+            "aws",
+            "s3",
+            "sync",
+            "--no-sign-request",
+            "--dryrun",
+            "--exclude",
+            "*",
+            "--include",
+            "*",
+            "s3://noaa-ufs-srw-pds/develop-20250702/fix",
+            str(dst_dir),
+        )
+        try:
+            assert actual == expected
+        except AssertionError:
+            print(f"{actual=}")
+            diff = set(actual).symmetric_difference(set(expected))
+            print(f"{diff=}")
+            raise
