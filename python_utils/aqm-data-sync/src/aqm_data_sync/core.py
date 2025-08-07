@@ -17,16 +17,12 @@ class UseCaseKey(StrEnum):
     AEROMMA = "AEROMMA"
 
 
-class Context(BaseModel):
+class AbstractContext(ABC, BaseModel):
     model_config = {"frozen": True}
-    first_cycle_date: datetime.datetime
     dst_dir: Path
-    fcst_hr: int = 0
-    last_cycle_date: datetime.datetime
-    s3_root: str = "s3://noaa-ufs-srw-pds/UFS-AQM"
+    s3_root: str = "s3://noaa-ufs-srw-pds"
     max_concurrent_requests: int | None = 3
     dry_run: bool = False
-    snippet: bool = False
 
     @computed_field
     def system_max_concurrent_requests(self) -> int | None:
@@ -40,6 +36,14 @@ class Context(BaseModel):
         else:
             return int(raw_output)
 
+
+class TimeVaryingContext(AbstractContext):
+    first_cycle_date: datetime.datetime
+    fcst_hr: int = 0
+    last_cycle_date: datetime.datetime
+    s3_root: str = "s3://noaa-ufs-srw-pds/UFS-AQM"
+    snippet: bool = False
+
     @model_validator(mode="before")
     @classmethod
     def _initialize_model_(cls, values: dict) -> dict:
@@ -51,13 +55,13 @@ class Context(BaseModel):
         return values
 
     @model_validator(mode="after")
-    def _finalize_model_(self) -> "Context":
+    def _finalize_model_(self) -> "TimeVaryingContext":
         if self.last_cycle_date < self.first_cycle_date:
             raise ValueError("last_cycle_date must be >= first_cycle_date")
         return self
 
 
-class UseCase(Context):
+class UseCase(TimeVaryingContext):
     key: UseCaseKey
 
     @classmethod
@@ -93,7 +97,7 @@ class UseCaseAeromma(UseCase):
 
 class AbstractS3SyncRunner(ABC):
 
-    def __init__(self, context: Context) -> None:
+    def __init__(self, context: TimeVaryingContext) -> None:
         self._ctx = context
 
     def run(self) -> None:

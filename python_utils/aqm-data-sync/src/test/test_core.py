@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from aqm_data_sync.core import (
-    Context,
+    TimeVaryingContext,
     TimeVaryingSyncRunner,
     UseCase,
     UseCaseKey,
@@ -14,7 +14,7 @@ class TestS3SyncRunner:
     def test_happy_path(self, tmp_path: Path) -> None:
         """Test a dry run with a single forecast date."""
         first_cycle_date = "2023060112"
-        ctx = Context(first_cycle_date=first_cycle_date, dst_dir=tmp_path, dry_run=True)
+        ctx = TimeVaryingContext(first_cycle_date=first_cycle_date, dst_dir=tmp_path, dry_run=True)
         runner = TimeVaryingSyncRunner(ctx)
         runner.run()
 
@@ -23,7 +23,7 @@ class TestS3SyncRunner:
         first_cycle_date = "2023060112"
         last_cycle_date = "2023060212"
         dst_dir = tmp_path / "output-for-this-test"
-        ctx = Context(
+        ctx = TimeVaryingContext(
             first_cycle_date=first_cycle_date,
             last_cycle_date=last_cycle_date,
             dst_dir=dst_dir,

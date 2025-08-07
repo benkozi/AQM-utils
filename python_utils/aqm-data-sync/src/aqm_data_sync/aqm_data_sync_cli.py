@@ -3,7 +3,12 @@ from pathlib import Path
 
 import typer
 
-from aqm_data_sync.core import UseCaseKey, Context, UseCase, TimeVaryingSyncRunner
+from aqm_data_sync.core import (
+    UseCaseKey,
+    TimeVaryingContext,
+    UseCase,
+    TimeVaryingSyncRunner,
+)
 
 os.environ["NO_COLOR"] = "1"
 app = typer.Typer(pretty_exceptions_enable=False)
@@ -11,9 +16,7 @@ app = typer.Typer(pretty_exceptions_enable=False)
 
 @app.command(name="time-varying")
 def time_varying(
-    dst_dir: Path = typer.Option(
-        ..., "--dst-dir", help="Destination directory for sync."
-    ),
+    dst_dir: Path = typer.Option(..., "--dst-dir", help="Destination directory for sync."),
     first_cycle_date: str = typer.Option(
         None,
         "--first-cycle-date",
@@ -25,9 +28,7 @@ def time_varying(
         "--last-cycle-date",
         help="Last cycle date in yyyymmdd format. If not provided, defaults to 24 hours after --first-cycle-date.",
     ),
-    use_case: UseCaseKey = typer.Option(
-        UseCaseKey.UNDEFINED, "--use-case", help="Use case."
-    ),
+    use_case: UseCaseKey = typer.Option(UseCaseKey.UNDEFINED, "--use-case", help="Use case."),
     snippet: bool = typer.Option(
         False,
         "--snippet",
@@ -45,7 +46,7 @@ def time_varying(
         snippet=snippet,
     )
     if use_case == UseCaseKey.UNDEFINED:
-        ctx = Context(**kwds)
+        ctx = TimeVaryingContext(**kwds)
     else:
         ctx = UseCase.from_key(use_case, **kwds)
     runner = TimeVaryingSyncRunner(ctx)
@@ -54,9 +55,7 @@ def time_varying(
 
 @app.command(name="srw-fixed")
 def srw_fixed(
-    dst_dir: Path = typer.Option(
-        ..., "--dst-dir", help="Destination directory for sync."
-    ),
+    dst_dir: Path = typer.Option(..., "--dst-dir", help="Destination directory for sync."),
     max_concurrent_requests: int = typer.Option(
         3, "--max-concurrent-requests", help="Max concurrent requests."
     ),
