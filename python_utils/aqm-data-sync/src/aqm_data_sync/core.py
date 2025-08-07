@@ -3,9 +3,8 @@ import logging
 import subprocess
 from abc import ABC, abstractmethod
 from enum import unique, StrEnum
-from functools import cached_property
 from pathlib import Path
-from typing import Any
+from typing import Any, TypeVar, Generic
 
 from pydantic import BaseModel, computed_field, model_validator
 
@@ -100,9 +99,12 @@ class UseCaseAeromma(UseCase):
         return values
 
 
-class AbstractS3SyncRunner(ABC):
+T = TypeVar("T", bound=AbstractContext)
 
-    def __init__(self, context: AbstractContext) -> None:
+
+class AbstractS3SyncRunner(ABC, Generic[T]):
+
+    def __init__(self, context: T) -> None:
         self._ctx = context
 
     def run(self) -> None:
@@ -164,13 +166,13 @@ class AbstractS3SyncRunner(ABC):
             )
 
 
-class SRWFixedSyncRunner(AbstractS3SyncRunner):
+class SRWFixedSyncRunner(AbstractS3SyncRunner[SRWFixedContext]):
 
     def _update_include_templates_(self, cmd: list[str]) -> None:
         cmd += ["--include", "*"]
 
 
-class TimeVaryingSyncRunner(AbstractS3SyncRunner):
+class TimeVaryingSyncRunner(AbstractS3SyncRunner[TimeVaryingContext]):
 
     def _update_include_templates_(self, cmd: list[str]) -> None:
         restart_cycle_date = self._ctx.first_cycle_date - datetime.timedelta(days=1)
