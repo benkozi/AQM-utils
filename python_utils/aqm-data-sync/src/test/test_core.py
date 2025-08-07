@@ -2,7 +2,7 @@ from pathlib import Path
 
 from aqm_data_sync.core import (
     Context,
-    S3SyncRunner,
+    TimeVaryingSyncRunner,
     UseCase,
     UseCaseKey,
     UseCaseAeromma,
@@ -15,7 +15,7 @@ class TestS3SyncRunner:
         """Test a dry run with a single forecast date."""
         first_cycle_date = "2023060112"
         ctx = Context(first_cycle_date=first_cycle_date, dst_dir=tmp_path, dry_run=True)
-        runner = S3SyncRunner(ctx)
+        runner = TimeVaryingSyncRunner(ctx)
         runner.run()
 
     def test_create_sync_command(self, tmp_path: Path) -> None:
@@ -29,7 +29,7 @@ class TestS3SyncRunner:
             dst_dir=dst_dir,
             dry_run=True,
         )
-        runner = S3SyncRunner(ctx)
+        runner = TimeVaryingSyncRunner(ctx)
         actual = runner._create_sync_cmd_()
         expected = (
             "aws",

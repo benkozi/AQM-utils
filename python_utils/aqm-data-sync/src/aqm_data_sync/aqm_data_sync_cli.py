@@ -3,7 +3,7 @@ from pathlib import Path
 
 import typer
 
-from aqm_data_sync.core import UseCaseKey, Context, UseCase, S3SyncRunner
+from aqm_data_sync.core import UseCaseKey, Context, UseCase, TimeVaryingSyncRunner
 
 os.environ["NO_COLOR"] = "1"
 app = typer.Typer(pretty_exceptions_enable=False)
@@ -48,7 +48,7 @@ def time_varying(
         ctx = Context(**kwds)
     else:
         ctx = UseCase.from_key(use_case, **kwds)
-    runner = S3SyncRunner(ctx)
+    runner = TimeVaryingSyncRunner(ctx)
     runner.run()
 
 

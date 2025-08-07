@@ -1,6 +1,7 @@
 import datetime
 import logging
 import subprocess
+from abc import ABC, abstractmethod
 from enum import unique, StrEnum
 from pathlib import Path
 from typing import Any
@@ -90,7 +91,7 @@ class UseCaseAeromma(UseCase):
         return values
 
 
-class S3SyncRunner:
+class AbstractS3SyncRunner(ABC):
 
     def __init__(self, context: Context) -> None:
         self._ctx = context
@@ -135,6 +136,26 @@ class S3SyncRunner:
         cmd.append(self._ctx.s3_root)
         cmd.append(str(self._ctx.dst_dir))
         return tuple(cmd)
+
+    @abstractmethod
+    def _update_include_templates_(self, cmd: list[str]) -> None:
+        pass
+
+    def _handle_max_concurrent_request_reset_(self):
+        if self._ctx.system_max_concurrent_requests is not None:
+            LOGGER("resetting max_concurrent_requests")
+            subprocess.check_call(
+                (
+                    "aws",
+                    "configure",
+                    "set",
+                    "default.s3.max_concurrent_requests",
+                    str(self._ctx.system_max_concurrent_requests),
+                )
+            )
+
+
+class TimeVaryingSyncRunner(AbstractS3SyncRunner):
 
     def _update_include_templates_(self, cmd: list[str]) -> None:
         restart_cycle_date = self._ctx.first_cycle_date - datetime.timedelta(days=1)
@@ -181,16 +202,3 @@ class S3SyncRunner:
                 f"GEFS_Aerosol/{curr_cycle_date_str}/00/gfs.t00z.atmf{fhr:03}.nemsio"
             ]
         return include_templates
-
-    def _handle_max_concurrent_request_reset_(self):
-        if self._ctx.system_max_concurrent_requests is not None:
-            LOGGER("resetting max_concurrent_requests")
-            subprocess.check_call(
-                (
-                    "aws",
-                    "configure",
-                    "set",
-                    "default.s3.max_concurrent_requests",
-                    str(self._ctx.system_max_concurrent_requests),
-                )
-            )
