@@ -77,7 +77,7 @@ def time_varying(
         snippet=snippet,
     )
     if use_case == UseCaseKey.UNDEFINED:
-        ctx = TimeVaryingContext(**kwds)
+        ctx = TimeVaryingContext.model_validate(kwds)
     else:
         ctx = UseCase.from_key(use_case, **kwds)
     runner = TimeVaryingSyncRunner(ctx)
@@ -99,7 +99,7 @@ def srw_fixed(
         max_concurrent_requests=max_concurrent_requests,
         dry_run=dry_run,
     )
-    ctx = SRWFixedContext(**kwds)
+    ctx = SRWFixedContext.model_validate(kwds)
     runner = SRWFixedSyncRunner(ctx)
     runner.run()
 

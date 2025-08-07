@@ -3,6 +3,7 @@ import logging
 import subprocess
 from abc import ABC, abstractmethod
 from enum import unique, StrEnum
+from functools import cached_property
 from pathlib import Path
 from typing import Any
 
@@ -165,17 +166,11 @@ class AbstractS3SyncRunner(ABC):
 
 class SRWFixedSyncRunner(AbstractS3SyncRunner):
 
-    def __init__(self, context: SRWFixedContext) -> None:
-        super().__init__(context)
-
     def _update_include_templates_(self, cmd: list[str]) -> None:
         cmd += ["--include", "*"]
 
 
 class TimeVaryingSyncRunner(AbstractS3SyncRunner):
-
-    def __init__(self, context: TimeVaryingContext) -> None:
-        super().__init__(context)
 
     def _update_include_templates_(self, cmd: list[str]) -> None:
         restart_cycle_date = self._ctx.first_cycle_date - datetime.timedelta(days=1)
@@ -203,7 +198,6 @@ class TimeVaryingSyncRunner(AbstractS3SyncRunner):
                 break
             curr_cycle_date += datetime.timedelta(days=1)
             ctr += 1
-        return cmd
 
     def _create_include_templates_for_cycle_date_(
         self, curr_cycle_date: datetime.datetime
