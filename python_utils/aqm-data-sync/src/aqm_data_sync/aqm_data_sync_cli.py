@@ -14,7 +14,7 @@ os.environ["NO_COLOR"] = "1"
 app = typer.Typer(pretty_exceptions_enable=False)
 
 
-@app.command(name="time-varying")
+@app.command(name="time-varying", help="Download time varying input data for UFS-AQM.")
 def time_varying(
     dst_dir: Path = typer.Option(
         ..., "--dst-dir", help="Destination directory for sync."
@@ -60,7 +60,7 @@ def time_varying(
     runner.run()
 
 
-@app.command(name="srw-fixed")
+@app.command(name="srw-fixed", help="Download SRW fixed data.")
 def srw_fixed(
     dst_dir: Path = typer.Option(
         ..., "--dst-dir", help="Destination directory for sync."
