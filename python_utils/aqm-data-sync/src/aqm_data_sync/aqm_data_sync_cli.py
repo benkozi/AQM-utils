@@ -16,7 +16,9 @@ app = typer.Typer(pretty_exceptions_enable=False)
 
 @app.command(name="time-varying")
 def time_varying(
-    dst_dir: Path = typer.Option(..., "--dst-dir", help="Destination directory for sync."),
+    dst_dir: Path = typer.Option(
+        ..., "--dst-dir", help="Destination directory for sync."
+    ),
     first_cycle_date: str = typer.Option(
         None,
         "--first-cycle-date",
@@ -28,7 +30,13 @@ def time_varying(
         "--last-cycle-date",
         help="Last cycle date in yyyymmdd format. If not provided, defaults to 24 hours after --first-cycle-date.",
     ),
-    use_case: UseCaseKey = typer.Option(UseCaseKey.UNDEFINED, "--use-case", help="Use case."),
+    use_case: UseCaseKey = typer.Option(
+        UseCaseKey.UNDEFINED, "--use-case", help="Use case."
+    ),
+    max_concurrent_requests: int = typer.Option(
+        3, "--max-concurrent-requests", help="Max concurrent requests."
+    ),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Dry run."),
     snippet: bool = typer.Option(
         False,
         "--snippet",
@@ -40,7 +48,6 @@ def time_varying(
         dst_dir=dst_dir,
         fcst_hr=fcst_hr,
         last_cycle_date=last_cycle_date,
-        s3_root=s3_root,
         max_concurrent_requests=max_concurrent_requests,
         dry_run=dry_run,
         snippet=snippet,
@@ -55,7 +62,9 @@ def time_varying(
 
 @app.command(name="srw-fixed")
 def srw_fixed(
-    dst_dir: Path = typer.Option(..., "--dst-dir", help="Destination directory for sync."),
+    dst_dir: Path = typer.Option(
+        ..., "--dst-dir", help="Destination directory for sync."
+    ),
     max_concurrent_requests: int = typer.Option(
         3, "--max-concurrent-requests", help="Max concurrent requests."
     ),

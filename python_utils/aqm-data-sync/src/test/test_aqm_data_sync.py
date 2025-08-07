@@ -20,6 +20,7 @@ def test_use_case(tmp_path: Path) -> None:
     runner = CliRunner()
 
     args = [
+        "time-varying",
         "--use-case",
         UseCaseKey.AEROMMA.value,
         "--dst-dir",
