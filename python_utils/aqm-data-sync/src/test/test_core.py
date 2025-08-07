@@ -204,8 +204,8 @@ class TestSRWFixedSyncRunner:
             "--exclude",
             "*",
             "--include",
-            "*",
-            "s3://noaa-ufs-srw-pds/develop-20250702/fix",
+            "develop-20250702/fix/*",
+            "s3://noaa-ufs-srw-pds",
             str(dst_dir),
         )
         try:
