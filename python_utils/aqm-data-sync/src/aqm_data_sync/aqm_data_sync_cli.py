@@ -9,9 +9,11 @@ os.environ["NO_COLOR"] = "1"
 app = typer.Typer(pretty_exceptions_enable=False)
 
 
-@app.command()
-def main(
-    dst_dir: Path = typer.Option(..., "--dst-dir", help="Destination directory for sync."),
+@app.command(name="time-varying")
+def time_varying(
+    dst_dir: Path = typer.Option(
+        ..., "--dst-dir", help="Destination directory for sync."
+    ),
     first_cycle_date: str = typer.Option(
         None,
         "--first-cycle-date",
@@ -23,12 +25,9 @@ def main(
         "--last-cycle-date",
         help="Last cycle date in yyyymmdd format. If not provided, defaults to 24 hours after --first-cycle-date.",
     ),
-    s3_root: str = typer.Option("s3://noaa-ufs-srw-pds/UFS-AQM", "--s3-root", help="S3 root path."),
-    max_concurrent_requests: int = typer.Option(
-        3, "--max-concurrent-requests", help="Max concurrent requests."
+    use_case: UseCaseKey = typer.Option(
+        UseCaseKey.UNDEFINED, "--use-case", help="Use case."
     ),
-    dry_run: bool = typer.Option(False, "--dry-run", help="Dry run."),
-    use_case: UseCaseKey = typer.Option(UseCaseKey.UNDEFINED, "--use-case", help="Use case."),
     snippet: bool = typer.Option(
         False,
         "--snippet",
@@ -51,6 +50,18 @@ def main(
         ctx = UseCase.from_key(use_case, **kwds)
     runner = S3SyncRunner(ctx)
     runner.run()
+
+
+@app.command(name="srw-fixed")
+def srw_fixed(
+    dst_dir: Path = typer.Option(
+        ..., "--dst-dir", help="Destination directory for sync."
+    ),
+    max_concurrent_requests: int = typer.Option(
+        3, "--max-concurrent-requests", help="Max concurrent requests."
+    ),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Dry run."),
+) -> None: ...
 
 
 if __name__ == "__main__":
